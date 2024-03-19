@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Loss Calculator</title>
+    <style>
+        label {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Weight Loss Calculator</h1>
+
+    <form id="calculatorForm">
+        <label for="weight">Weight:</label>
+        <input type="number" id="weight" placeholder="Enter weight">
+        <select id="weightUnit">
+            <option value="kg">Kg</option>
+            <option value="lbs">Pounds</option>
+            <option value="stones">Stones</option>
+        </select>
+
+        <label for="distance">Distance:</label>
+        <input type="number" id="distance" placeholder="Enter distance">
+        <select id="distanceUnit">
+            <option value="meters">Meters</option>
+            <option value="feet">Feet</option>
+            <option value="miles">Miles</option>
+            <option value="yards">Yards</option>
+        </select>
+
+        <label for="time">Time:</label>
+        <input type="number" id="time" placeholder="Enter time">
+        <select id="timeUnit">
+            <option value="seconds">Seconds</option>
+            <option value="minutes">Minutes</option>
+            <option value="hours">Hours</option>
+        </select>
+
+        <label for="slope">Slope:</label>
+        <input type="number" id="slope" placeholder="Enter slope percentage">
+        <select id="slopeUnit">
+            <option value="percentage">%</option>
+        </select>
+
+        <button type="button" onclick="calculate()">Calculate</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        function calculate() {
+            var weight = convertWeightToKg();
+            var distance = convertDistanceToMeters();
+            var time = convertTimeToSeconds();
+            var slope = parseFloat(document.getElementById('slope').value);
+
+            if (isNaN(weight) || isNaN(slope)) {
+                alert('Please fill in weight and slope with valid numbers.');
+                return;
+            }
+
+            var speed;
+            if (!isNaN(distance) && !isNaN(time)) {
+                // If both distance and time are provided, calculate speed
+                speed = distance / time;
+            } else if (!isNaN(speed) && !isNaN(time)) {
+                // If speed and time are provided, calculate distance
+                distance = speed * time;
+                document.getElementById('distance').value = distance.toFixed(2);
+            } else if (!isNaN(speed) && !isNaN(distance)) {
+                // If speed and distance are provided, calculate time
+                time = distance / speed;
+                document.getElementById('time').value = time.toFixed(2);
+            } else {
+                alert('Please fill in at least two of the following: distance, time, or speed.');
+                return;
+            }
+
+            // Adjust speed for slope
+            var slopeFactor = 1 + (slope / 100);
+            speed *= slopeFactor;
+
+            // Display the calculated speed before the overall results
+            document.getElementById('result').innerHTML = `<p>Calculated Speed: ${speed.toFixed(2)} m/s</p>`;
+
+            // Calculate calories burned using a simple formula
+            var caloriesBurned = (0.035 * weight) * distance;
+
+            // Calculate weight loss (assumes 7700 calories per kg)
+            var weightLoss = caloriesBurned / 7700;
+
+            // Display the result
+            var resultText = `<p>Calories burned: ${caloriesBurned.toFixed(2)} kcal</p>`;
+            resultText += `<p>Weight loss: ${weightLoss.toFixed(4)} kg</p>`;
+            resultText += `<p>Adjusted Speed (with slope): ${speed.toFixed(2)} m/s</p>`;
+            document.getElementById('result').innerHTML += resultText;
+
+            // Clear the form after submission
+            document.getElementById('calculatorForm').reset();
+        }
+
+        function convertDistanceToMeters() {
+            var distance = parseFloat(document.getElementById('distance').value);
+            var distanceUnit = document.getElementById('distanceUnit').value;
+
+            switch (distanceUnit) {
+                case 'feet':
+                    return distance * 0.3048; // 1 foot = 0.3048 meters
+                case 'miles':
+                    return distance * 1609.34; // 1 mile = 1609.34 meters
+                case 'yards':
+                    return distance * 0.9144; // 1 yard = 0.9144 meters
+                default:
+                    return distance; // Assume meters if no conversion is needed
+            }
+        }
+
+        function convertTimeToSeconds() {
+            var time = parseFloat(document.getElementById('time').value);
+            var timeUnit = document.getElementById('timeUnit').value;
+
+            switch (timeUnit) {
+                case 'minutes':
+                    return time * 60; // 1 minute = 60 seconds
+                case 'hours':
+                    return time * 3600; // 1 hour = 3600 seconds
+                default:
+                    return time; // Assume seconds if no conversion is needed
+            }
+        }
+
+        function convertWeightToKg() {
+            var weight = parseFloat(document.getElementById('weight').value);
+            var weightUnit = document.getElementById('weightUnit').value;
+
+            switch (weightUnit) {
+                case 'lbs':
+                    return weight * 0.453592; // 1 pound = 0.453592 kg
+                case 'stones':
+                    return weight * 6.35029; // 1 stone = 6.35029 kg
+                default:
+                    return weight; // Assume kilograms if no conversion is needed
+            }
+        }
+    </script>
+
+</body>
+</html>
